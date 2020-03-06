@@ -9,6 +9,6 @@ public class ResourceLocations
 		
 	public static ResourceLocation getModRL(String name)
 	{
-		return new ResourceLocation(WeirderBiomesMod.MODID, name);
+		return new ResourceLocation(WeirderBiomes.MODID, name);
 	}
 }
