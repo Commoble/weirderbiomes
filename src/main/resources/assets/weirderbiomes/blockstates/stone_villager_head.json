@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "weirderbiomes:block/stone_villager_head",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "weirderbiomes:block/stone_villager_head"
+    },
+    "facing=south": {
+      "model": "weirderbiomes:block/stone_villager_head",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "weirderbiomes:block/stone_villager_head",
+      "y": 270
+    }
+  }
+}
