@@ -51,7 +51,8 @@ public class ConfiguredFeatureRegistrar
 	{
 		WeightedBlockStateProvider provider = new WeightedBlockStateProvider();
 		Block[] blocks = {
-			BlockRegistrar.STONE_VILLAGER_HEAD
+			BlockRegistrar.STONE_VILLAGER_HEAD,
+			BlockRegistrar.STONE_OBSERVER_HEAD
 		};
 		Direction[] horizontals = {Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST};
 		for (Block block : blocks)

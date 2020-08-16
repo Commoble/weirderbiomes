@@ -14,6 +14,7 @@ public class BlockRegistrar
 	public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, WeirderBiomes.MODID);
 	
 	public static final FaceBlock STONE_VILLAGER_HEAD = registerFaceBlock(Names.STONE_VILLAGER_HEAD);
+	public static final FaceBlock STONE_OBSERVER_HEAD = registerFaceBlock(Names.STONE_OBSERVER_HEAD);
 	
 	public static FaceBlock registerFaceBlock(String name)
 	{

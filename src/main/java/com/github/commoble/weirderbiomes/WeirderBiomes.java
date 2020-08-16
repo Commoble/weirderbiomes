@@ -1,5 +1,7 @@
 package com.github.commoble.weirderbiomes;
 
+import java.util.function.IntConsumer;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,10 +45,12 @@ public class WeirderBiomes
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 		
+		IntConsumer biomeSetThreshers[] = {BiomeThresher.COLD, BiomeThresher.COOL, BiomeThresher.WARM, BiomeThresher.HOT};
+		
 		for (int i=0; i<100; i++)
 		{
 			RegistryKey<Biome> key = RegistryKey.of(Registry.BIOME_KEY,  new ResourceLocation(MODID, String.valueOf(i)));
-			BiomeThresher.addBiome(key, Type.DESERT, BiomeThresher.COOL, createTestBiome());
+			BiomeThresher.addBiome(key, Type.DESERT, biomeSetThreshers[i % 4], createTestBiome());
 		}
 //		BiomeThresher.addBiome(TEST_BIOME_KEY, Type.FOREST, TEST_BIOME);
 		

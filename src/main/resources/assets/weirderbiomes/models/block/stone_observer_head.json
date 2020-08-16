@@ -2,6 +2,6 @@
 	"parent": "minecraft:block/cube_all",
 	"textures":
 	{
-		"all": "weirderbiomes:block/stone_observer_face"
+		"all": "weirderbiomes:block/stone_villager_face"
 	}
 }
