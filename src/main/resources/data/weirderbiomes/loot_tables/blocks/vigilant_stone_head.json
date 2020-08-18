@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "weirderbiomes:stone_villager_head"
+          "name": "weirderbiomes:vigilant_stone_head"
         }
       ],
       "conditions": [

@@ -1,11 +1,20 @@
 package com.github.commoble.weirderbiomes;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.IntConsumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.commoble.weirderbiomes.blocks.FaceBlock;
+
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -18,7 +27,12 @@ import net.minecraft.world.biome.DefaultBiomeFeatures;
 import net.minecraft.world.biome.MobSpawnInfo;
 import net.minecraft.world.biome.MoodSoundAmbience;
 import net.minecraft.world.gen.GenerationStage.Decoration;
+import net.minecraft.world.gen.feature.BlockStateProvidingFeatureConfig;
+import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.Features;
 import net.minecraft.world.gen.layer.LayerUtil.Type;
+import net.minecraft.world.gen.placement.Placement;
+import net.minecraft.world.gen.placement.TopSolidWithNoiseConfig;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilder;
 import net.minecraft.world.gen.surfacebuilders.ISurfaceBuilderConfig;
 import net.minecraft.world.gen.surfacebuilders.SurfaceBuilder;
@@ -29,6 +43,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(WeirderBiomes.MODID)
@@ -38,26 +53,37 @@ public class WeirderBiomes
 	public static final Logger LOGGER = LogManager.getLogger();
 //	public static final String TEST_BIOME_NAME = "test_biome";
 //	public static final RegistryKey<Biome> TEST_BIOME_KEY = RegistryKey.of(Registry.BIOME_KEY, new ResourceLocation(MODID, TEST_BIOME_NAME));
-	public static final Biome TEST_BIOME = createTestBiome();
+//	public static final Biome TEST_BIOME = createTestBiome();
 
 	public WeirderBiomes()
 	{
 		IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 		IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 		
+		// static-initing blocks for now due to lack of biome apis
+		DeferredRegister<Block> blocks = DeferredRegister.create(ForgeRegistries.BLOCKS, WeirderBiomes.MODID);
+		DeferredRegister<Item> items = DeferredRegister.create(ForgeRegistries.ITEMS, WeirderBiomes.MODID);
+		
+		List<Block> faceBlocks = registerFaceBlocks(blocks, items, Names.FACE_BLOCK_NAMES);
+		
 		IntConsumer biomeSetThreshers[] = {BiomeThresher.COLD, BiomeThresher.COOL, BiomeThresher.WARM, BiomeThresher.HOT};
+		
+		ConfiguredFeature<?, ?> facePileFeature = ConfiguredFeatureRegistrar.register("head_pile",
+			FeatureRegistrar.PILE.configure(new BlockStateProvidingFeatureConfig(ConfiguredFeatureRegistrar.makeHeadProvider(faceBlocks)))
+				.decorate(Features.Placements.TOP_SOLID_HEIGHTMAP)
+				.spreadHorizontally()
+				.decorate(Placement.field_242901_e.configure(new TopSolidWithNoiseConfig(160, 80.0D, 0.3D))));
 		
 		for (int i=0; i<100; i++)
 		{
 			RegistryKey<Biome> key = RegistryKey.of(Registry.BIOME_KEY,  new ResourceLocation(MODID, String.valueOf(i)));
-			BiomeThresher.addBiome(key, Type.DESERT, biomeSetThreshers[i % 4], createTestBiome());
+			BiomeThresher.addBiome(key, Type.EXTREME_HILLS, biomeSetThreshers[i % 4], createTestBiome(facePileFeature));
 		}
-//		BiomeThresher.addBiome(TEST_BIOME_KEY, Type.FOREST, TEST_BIOME);
 		
 		// subscribe deferred registers
 		DeferredRegister<?>[] registers = {
-			BlockRegistrar.BLOCKS,
-			ItemRegistrar.ITEMS
+			blocks,
+			items
 		};
 		
 		for (DeferredRegister<?> register : registers)
@@ -81,7 +107,7 @@ public class WeirderBiomes
 		return WorldGenRegistries.add(WorldGenRegistries.CONFIGURED_SURFACE_BUILDER, new ResourceLocation(MODID, name), builder);
 	}
 	
-	public static Biome createTestBiome()
+	public static Biome createTestBiome(ConfiguredFeature<?,?> facePileFeature)
 	{
 	      BiomeGenerationSettings.Builder genBuilder = (new BiomeGenerationSettings.Builder())
 	    	  .surfaceBuilder(FACE_VALLEY_SURFACE_BUILDER);
@@ -97,7 +123,7 @@ public class WeirderBiomes
 	      genBuilder
 	      	.feature(Decoration.UNDERGROUND_ORES, ConfiguredFeatureRegistrar.EXTRA_IRON)
 //	      	.feature(Decoration.VEGETAL_DECORATION, ConfiguredFeatureRegistrar.STONE_COLUMN)
-	      	.feature(Decoration.VEGETAL_DECORATION, ConfiguredFeatureRegistrar.FACE_PILE);
+	      	.feature(Decoration.VEGETAL_DECORATION, facePileFeature);
 
 	      MobSpawnInfo.Builder spawnBuilder = new MobSpawnInfo.Builder();
 	      DefaultBiomeFeatures.addDesertMobs(spawnBuilder);
@@ -132,5 +158,21 @@ public class WeirderBiomes
 	public static int packRGB(int red, int green, int blue)
 	{
 		return (red << 16) + (green << 8) + blue;
+	}
+	
+	public static List<Block> registerFaceBlocks(DeferredRegister<Block> blocks, DeferredRegister<Item> items, String[] blockNames)
+	{
+		List<Block> results = new ArrayList<>();
+		for (String name : blockNames)
+		{
+			AbstractBlock.Properties blockProps = AbstractBlock.Properties.from(Blocks.STONE);
+			Item.Properties itemProps = new Item.Properties().group(ItemGroup.BUILDING_BLOCKS);
+			FaceBlock block = new FaceBlock(blockProps);
+			blocks.register(name, () -> block);
+			items.register(name, () -> new BlockItem(block, itemProps));
+			
+			results.add(block);
+		}
+		return results;
 	}
 }

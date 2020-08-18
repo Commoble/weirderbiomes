@@ -1,6 +1,7 @@
 {
-	"block.weirderbiomes.stone_villager_head": "Rustic Stone Head",
-	"block.weirderbiomes.stone_observer_head": "Vigilant Stone Head",
+	"block.weirderbiomes.vigilant_stone_head": "Vigilant Stone Head",
+	"block.weirderbiomes.observant_stone_head": "Observant Stone Head",
+	"block.weirderbiomes.wrathful_stone_head": "Wrathful Stone Head",
 	"biome.weirderbiomes.cairn_of_faces": "Cairn of Faces",
 	"biome.weirderbiomes.caldera": "Caldera"
 }
